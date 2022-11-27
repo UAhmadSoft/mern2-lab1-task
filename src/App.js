@@ -1,60 +1,63 @@
-import { useEffect, useState } from 'react';
+import { Button, Typography } from '@mui/material';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
-import axios from 'axios';
-import useToggle from './hooks/useToggle';
-import CircularProgress from '@mui/material/CircularProgress';
-import TextField from '@mui/material/TextField';
+import Child from './Child';
 
 function App() {
-  // loading state
-  const [loading, toggleLoading] = useToggle(false);
-  const [data, setData] = useState();
+  const [counter, setCounter] = useState(0);
+  const [list, setList] = useState([1, 2, 3, 4, 5]);
+
+  const [first, setFirst] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      try {
-        // JSON placeholder API
-        const url = 'https://jsonplaceholder.typicode.com/users';
-        const res = await axios.get(url);
-        let obj = res.data[0];
-        Object.getOwnPropertyNames(obj).forEach(function (prop) {
-          obj[prop] = '';
-        });
-        setData(obj);
-        console.log(res);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        toggleLoading();
-      }
-    })();
+    console.log('Counter changed');
+  }, [counter]);
+
+  useEffect(() => {
+    console.log('App mounted');
   }, []);
 
-  const handleChange = (e) => {
-    setData((st) => ({ ...st, [e.target.name]: e.target.value }));
-  };
+  useEffect(() => {
+    console.log('Every Time coomponent re-render');
+  });
+
+  // * callback function
+
+  const deleteItem = useCallback((index) => {
+    const newList = [...list];
+    newList.splice(index, 1);
+    setList(newList);
+  }, []);
+
+  //  use memo example
+  const countetSquared = useMemo(() => {
+    return counter * counter;
+  }, [counter]);
 
   return (
     <div>
-      {loading && <CircularProgress size={25} />}
-
-      <form>
-        {data &&
-          Object.keys(data)
-            .filter((el) => el !== 'address' || el !== 'company')
-            .map((el, i) => (
-              <TextField
-                value={data[el]}
-                name={el}
-                onChange={handleChange}
-                key={i}
-                label={el}
-                placeholder={el}
-              />
-            ))}
-      </form>
+      <Typography variant='h1'>Counter: {counter}</Typography>
+      <Button
+        variant='contained'
+        onClick={() => {
+          setCounter((st) => st + 1);
+          // setCounter(counter + 1);
+        }}
+      >
+        Increment
+      </Button>
+      <Child
+        list={list}
+        deleteItem={deleteItem}
+        countetSquared={countetSquared}
+      />
     </div>
   );
 }
 
 export default App;
+
+// * Component Rerenders when :
+// * 1. State changes
+// * 2. Props changes
+// * 3. Parent component rerenders X
