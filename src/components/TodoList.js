@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { IconButton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
 import { Delete } from '@mui/icons-material';
 import Todo from './Todo';
+import { TodosContext } from '../contexts/TodosContext';
 
 const TodoList = ({ todos, deleteTodo, updateTodo }) => {
+  const { displayTodos } = useContext(TodosContext);
+
+  useEffect(() => {
+    console.log('TodoList component re-render');
+  });
+
   return (
     <Box
       display='flex'
