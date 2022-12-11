@@ -5,56 +5,94 @@ import useToggle from './hooks/useToggle';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import useInput from './hooks/useInput';
-import { Button } from '@mui/material';
+import { Box, Button, capitalize } from '@mui/material';
 import { Add } from '@mui/icons-material';
+import GenericForm from './GenericForm';
 
 function App() {
   // loading state
 
-  // * Generic form Example
-  const [form, setForm] = useState([
-    { id: 1, field: 'name', value: '', type: 'text' },
-    { id: 2, field: 'email', value: '', type: 'email' },
-    { id: 3, field: 'password', value: '', type: 'password' },
-    { id: 4, field: 'confirmPassword', value: '', type: 'password' },
+  const [formFields, setFormFields] = useState([
+    {
+      name: 'name',
+      value: '',
+      type: 'text',
+      label: 'Name',
+    },
+    {
+      name: 'email',
+      value: '',
+      type: 'email',
+      label: 'Email',
+    },
+    {
+      name: 'password',
+      value: '',
+      type: 'password',
+      label: 'Password',
+    },
   ]);
-
-  const [fieldAdded, onFieldChange, resetField] = useInput('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setForm([...form, { id: form.length, field: fieldAdded, value: '' }]);
-    resetField();
+    console.log('formFields', formFields);
+
+    const user = formFields.reduce((preVal, currVal) => {
+      preVal[currVal.name] = currVal.value;
+      return preVal;
+    }, {});
+
+    // * reset formFields
+    setFormFields((st) =>
+      st.map((el) => ({
+        ...el,
+        value: '',
+      }))
+    );
+  };
+
+  const addNewField = (newField) => {
+    setFormFields((st) => [
+      ...st,
+      {
+        name: newField,
+        value: '',
+        type: 'text',
+        label: capitalize(newField),
+        // label: `${newField.charAt(0).toUpperCase()}${newField.slice(1)}]}`,
+      },
+    ]);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormFields((st) =>
+      st.map((el) =>
+        el.name === name
+          ? {
+              ...el,
+              value,
+              // value: value,
+            }
+          : el
+      )
+    );
   };
 
   return (
-    <div>
-      {form.map((item) => (
-        <TextField
-          key={item.id}
-          label={item.field}
-          variant='outlined'
-          value={item.value}
-          type={item.type || 'text'}
-        />
-      ))}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label='Field Name'
-          variant='outlined'
-          value={fieldAdded}
-          onChange={onFieldChange}
-        />
-        <Button
-          variant='contained'
-          color='success'
-          startIcon={<Add />}
-          type='submit'
-        >
-          Add Field
-        </Button>
-      </form>
-    </div>
+    <Box
+      padding={5}
+      border='1px solid #ccc'
+      width='fit-content'
+      margin='20px auto'
+    >
+      <GenericForm
+        handleSubmit={handleSubmit}
+        formFields={formFields}
+        addNewField={addNewField}
+        handleChange={handleChange}
+      />
+    </Box>
   );
 }
 
